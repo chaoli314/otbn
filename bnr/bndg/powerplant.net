@@ -1,3 +1,4 @@
+"Not a connected Bayesian network graph."
 net
 {
     node_size = (100 40);

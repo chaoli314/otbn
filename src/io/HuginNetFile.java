@@ -31,7 +31,8 @@ public class HuginNetFile {
             System.err.println("IOException in read HuginNetFile");
         }
 
-        /// 2. Parse Nodes  //  node dysp {states = ( "yes" "no" );}
+        /// 2. Parse Nodes
+        //  #########################     node      dysp           {   states    =  ( "yes" "no" );     }
         Pattern p_node = Pattern.compile("node\\s+([^\\s{]+)[^{]*\\{.*?states\\s*=\\s*\\((.+?)\\);.*?\\}");
         /// node_nameGROUP1_{*states = (state_labelsGROUP2)*}
         Pattern p_state = Pattern.compile("\"(.+?)\"");

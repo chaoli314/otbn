@@ -14,30 +14,36 @@ public class Index {
         int _index = 0;
         int tableSize = 1;//tableSize(forVars);
         int[] index = new int[tableSize];
+
         // For each variable in forVars, the amount of change in _index
-        int[] _ranges = new int[numberOfVars];
+        int[] card_ = new int[numberOfVars];
+
         // For each variable in forVars, the amount of change in _index
-        int[] _sum = new int[numberOfVars];
+        int[] stride_ = new int[numberOfVars];
+
         // For each variable in forVars, the current state
-        int[] _state = new int[numberOfVars]; // 初始状态全部为 零。
+        int[] assignment_ = new int[numberOfVars]; // 初始状态全部为 零。
+
+
+
         // //////////////////////////////////////////////////////////////////////////////////////////////
-        for (int j = 0; j < numberOfVars; ++j)
-            _ranges[j] = forVars.get(j).card();
+        for (int l = 0; l < numberOfVars; ++l)
+            card_[l] = forVars.get(l).card();
 
         int sum = 1;
         for (int i = 0; i < indexVars.size(); ++i) {
             int j = forVars.indexOf(indexVars.get(i));
-            _sum[j] = sum;
-            sum *= _ranges[j];
+            stride_[j] = sum;
+            sum *= card_[j];
         }
         // Increments the current state of forVars.
         /** i_forVars is from 1, since the index[0] = 0, */
         for (int i_forVars = 1; i_forVars < tableSize; ++i_forVars) {
             for (int i = 0; i < numberOfVars; ++i) {
-                _index += _sum[i];
-                if (++_state[i] < _ranges[i]) break;
-                _index -= _sum[i] * _ranges[i];
-                _state[i] = 0;
+                _index += stride_[i];
+                if (++assignment_[i] < card_[i]) break;
+                _index -= stride_[i] * card_[i];
+                assignment_[i] = 0;
             }
             index[i_forVars] = _index;
         }

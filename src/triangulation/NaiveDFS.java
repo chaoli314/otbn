@@ -5,24 +5,18 @@ import graph.Graph;
 import util.BitSetUtil;
 
 import java.math.BigInteger;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static util.GraphUtil.eliminateSimplicial;
 
 /**
  * Created by chaoli on 10/28/16.
  */
-public abstract class TriangulationByDFS extends OptimalTriangulation {
+public class NaiveDFS extends OptimalTriangulation {
 
     protected Graph best_H_;
     protected BigInteger best_tts_;    //  upper bound;
     protected Map<BitSet, BigInteger> map;
-
-    protected long elapsed_time_;
-    protected long start_time_;
 
     @Override
     public Graph run(final Graph originalGraph, int... weights) {
@@ -34,7 +28,7 @@ public abstract class TriangulationByDFS extends OptimalTriangulation {
         List<BitSet> s_cliques = new BronKerboschAlgorithm(s_H).getAllMaximalCliques();
         BigInteger s_tts = BitSetUtil.totalTableSize(s_cliques, weights);
 
-        eliminateSimplicial(s_H, s_remaining);
+        //eliminateSimplicial(s_H, s_remaining);
 
         if (s_remaining.isEmpty()) return s_H;
 
@@ -44,12 +38,7 @@ public abstract class TriangulationByDFS extends OptimalTriangulation {
         map = new HashMap<>();
 
         long start_time = System.nanoTime();
-
-        start_time_ = System.nanoTime();
-        elapsed_time_ = 0L;
-
         expandNode(s_H, s_remaining, s_cliques, s_tts, weights);
-
         long end_time = System.nanoTime();
         time_for_total_ += (end_time - start_time);
         this.printStatistics();
@@ -63,5 +52,36 @@ public abstract class TriangulationByDFS extends OptimalTriangulation {
                 nodeCounter_.tally() + ", " + cliqueCounter_.tally());
     }
 
-    protected abstract void expandNode(Graph s_H, BitSet s_remaining, List<BitSet> s_cliques, BigInteger s_tts, int[] weights);
+    protected void expandNode(Graph n_H, BitSet n_remaining, List<BitSet> n_cliques, BigInteger n_tts, int[] weights) {
+        //  The number of nodes + 1
+
+            nodeCounter_.increment();
+
+        /*branch & bound*/
+        for (int v = n_remaining.nextSetBit(0); v >= 0; v = n_remaining.nextSetBit(v + 1)) {
+
+            /*Let m = Copy(n)*/
+            Graph m_H = new Graph(n_H);
+            BitSet m_remaining = (BitSet) n_remaining.clone();
+            List<BitSet> m_cliques = new ArrayList<>(n_cliques);
+            BigInteger m_tts = n_tts;
+
+            /* EliminateVertex(m, v)*/
+            long start_time = System.nanoTime();
+
+            m_tts = TriangulationByDFS_DCM_OandV.eliminateVertex_DCM_OandV(m_H, m_remaining, v, m_cliques, m_tts, weights, cliqueCounter_);
+
+            //  long start_time = System.nanoTime();
+            long end_time = System.nanoTime();
+            time_for_DCM_   += (end_time - start_time);
+
+            //eliminateSimplicial(m_H, m_remaining);  //  GraphUtil.eliminateSimplicial
+
+                map.put(m_remaining, m_tts);
+                expandNode(m_H, m_remaining, m_cliques, m_tts, weights);
+
+        }
+    }
+
+
 }

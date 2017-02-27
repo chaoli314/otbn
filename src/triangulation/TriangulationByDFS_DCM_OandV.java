@@ -1,6 +1,6 @@
 package triangulation;
 
-import edu.princeton.cs.algs4.Counter;
+import util.Counter;
 import graph.BronKerboschAlgorithm;
 import graph.Graph;
 import util.GraphUtil;
@@ -19,6 +19,14 @@ import static util.GraphUtil.eliminateSimplicial;
 public class TriangulationByDFS_DCM_OandV extends TriangulationByDFS {
 
     protected void expandNode(Graph n_H, BitSet n_remaining, List<BitSet> n_cliques, BigInteger n_tts, int[] weights) {
+
+        elapsed_time_ =         System.nanoTime() - start_time_;
+        if(elapsed_time_ / 1000000000L > 3600L){
+            System.out.println("time out");
+            return;
+        }
+
+
         //  The number of nodes + 1
         nodeCounter_.increment();
 

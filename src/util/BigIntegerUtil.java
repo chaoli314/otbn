@@ -14,4 +14,13 @@ public class BigIntegerUtil {
                     "The clique table size is too large.");
         return BigInteger_value.intValue();
     }
+
+    public static long toLongExact(BigInteger BigInteger_value) {
+        BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
+        if (BigInteger_value.compareTo(LONG_MAX) > 0)
+            throw new ArithmeticException("long overflow -> " +
+                    "The clique table size is too large.");
+        return BigInteger_value.longValue();
+    }
+
 }

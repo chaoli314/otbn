@@ -1,6 +1,6 @@
 package triangulation;
 
-import edu.princeton.cs.algs4.Counter;
+import util.Counter;
 import graph.BronKerboschAlgorithm;
 import graph.Graph;
 import util.BitSetUtil;

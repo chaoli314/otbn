@@ -446,14 +446,6 @@ public class Factor {
     void slice() {
     }
 
-    /**
-     * Returns distance between two factors f and g, according to the distance measure
-     */
-    // pre f.vars() == g.vars()
-    public double dist(Factor f, Factor g, int shului) {
-        return -1;
-    }
-
     public int getSize() {
         return data_.length;
     }
