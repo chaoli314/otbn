@@ -10,13 +10,10 @@ import static org.junit.Assert.assertEquals;
  * Created by chaoli on 10/20/16.
  */
 public class NodeTest {
-
-
-    private Bayesian_network bn_;
-
+    private BayesianNetwork bn_;
     @Before
     public void setUp() throws Exception {
-        bn_ = new Bayesian_network();
+        bn_ = new BayesianNetwork();
 
         bn_.addNode("nodeA");
         bn_.addNode("nodeH");
@@ -45,35 +42,15 @@ public class NodeTest {
         assertEquals(3, bn_.getNodeByName("nodeU").getIndex());
     }
 
-
-    @Test
-    public void getNumberOfStates() throws Exception {
-        Node nodeA = bn_.getNodeByName("nodeA");
-        assertEquals(0, nodeA.getNumberOfStates());
-
-        nodeA.addState("high");
-        assertEquals(1, nodeA.getNumberOfStates());
-        assertEquals("high", nodeA.getStateLabel(0));
-        assertEquals(0, nodeA.getStateIndex("high"));
-        nodeA.addState("middle");
-        nodeA.addState("low");
-
-        assertEquals(3, nodeA.getNumberOfStates());
-        assertEquals("middle", nodeA.getStateLabel(1));
-        assertEquals(1, nodeA.getStateIndex("middle"));
-        assertEquals("low", nodeA.getStateLabel(2));
-        assertEquals(2, nodeA.getStateIndex("low"));
-    }
-
     @Test
     public void getStateIndex() throws Exception {
         Node nodeA = bn_.getNodeByName("nodeA");
-        assertEquals(0, nodeA.getNumberOfStates());
+        assertEquals(0, nodeA.getCard());
 
         nodeA.addState("high");
         nodeA.addState("middle");
         nodeA.addState("low");
-        assertEquals(3, nodeA.getNumberOfStates());
+        assertEquals(3, nodeA.getCard());
 
         assertEquals(0, nodeA.getStateIndex("high"));
         assertEquals(1, nodeA.getStateIndex("middle"));
@@ -83,29 +60,51 @@ public class NodeTest {
     @Test
     public void getStateLabel() throws Exception {
         Node nodeA = bn_.getNodeByName("nodeA");
-        assertEquals(0, nodeA.getNumberOfStates());
+        assertEquals(0, nodeA.getCard());
 
         nodeA.addState("high");
         nodeA.addState("middle");
         nodeA.addState("low");
-        assertEquals(3, nodeA.getNumberOfStates());
+        assertEquals(3, nodeA.getCard());
+
         assertEquals("high", nodeA.getStateLabel(0));
         assertEquals("middle", nodeA.getStateLabel(1));
         assertEquals("low", nodeA.getStateLabel(2));
     }
 
     @Test
-    public void addState() throws Exception {
-        Node nodeA = bn_.getNodeByIndex(0);
-        assertEquals(0, nodeA.getNumberOfStates());
+    public void getCard() throws Exception {
+        Node nodeA = bn_.getNodeByName("nodeA");
+        assertEquals(0, nodeA.getCard());
 
         nodeA.addState("high");
-        assertEquals(1, nodeA.getNumberOfStates());
+        assertEquals(1, nodeA.getCard());
+        assertEquals("high", nodeA.getStateLabel(0));
         assertEquals(0, nodeA.getStateIndex("high"));
         nodeA.addState("middle");
         nodeA.addState("low");
 
-        assertEquals(3, nodeA.getNumberOfStates());
+        assertEquals(3, nodeA.getCard());
+        assertEquals("middle", nodeA.getStateLabel(1));
+        assertEquals(1, nodeA.getStateIndex("middle"));
+        assertEquals("low", nodeA.getStateLabel(2));
+        assertEquals(2, nodeA.getStateIndex("low"));
+    }
+
+    @Test
+    public void addState() throws Exception {
+        Node nodeA = bn_.getNodeByIndex(0);
+        assertEquals(0, nodeA.getCard());
+
+        nodeA.addState("high");
+        assertEquals(1, nodeA.getCard());
+        assertEquals(0, nodeA.getStateIndex("high"));
+        assertEquals("high", nodeA.getStateLabel(0));
+
+        nodeA.addState("middle");
+        nodeA.addState("low");
+
+        assertEquals(3, nodeA.getCard());
         assertEquals(1, nodeA.getStateIndex("middle"));
         assertEquals(2, nodeA.getStateIndex("low"));
     }

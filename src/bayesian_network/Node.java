@@ -12,54 +12,79 @@ import java.util.Map;
 /**
  * Created by chaoli on 10/20/16.
  */
-public class Node {
+public class Node extends Var {
 
-    private Bayesian_network network_;
+    private BayesianNetwork network_;
 
-
+    // super.getIndex();
     private String node_name_;
-    private int node_index_;
 
     private List<String> stateLabels_;
-    private Map<String, Integer> statelabel_to_stateIndex_;
+    private Map<String, Integer> stateLabel_to_stateIndex_;
 
     private List<Node> parents_;
-    private CPT cpt_;
 
-    public Node(Bayesian_network network_,
-                String node_name_,
-                int node_index_) {
-        this.network_ = network_;
-        this.node_name_ = node_name_;
-        this.node_index_ = node_index_;
+    public Node(BayesianNetwork network,
+                String node_name,
+                int node_index) {
+        super(node_index, 0);
+        this.network_ = network;
+        this.node_name_ = node_name;
 
         this.stateLabels_ = new ArrayList<>();
-        this.statelabel_to_stateIndex_ = new HashMap<>();
+        this.stateLabel_to_stateIndex_ = new HashMap<>();
+
         parents_ = new ArrayList<>();
+        cpt_ = null;
     }
 
-    public void addParent(Node newParent) {
-        parents_.add(newParent);
+    // ~ Methods ~
+    public String getName() {
+        return node_name_;
     }
-    public List<Node> getParents(){
+
+    public int getStateIndex(String stateLabel) {
+        return stateLabel_to_stateIndex_.get(stateLabel);
+    }
+
+    public String getStateLabel(int stateIndex) {
+        return stateLabels_.get(stateIndex);
+    }
+
+    public void addState(String stateLabel) {
+        stateLabel_to_stateIndex_.put(stateLabel, super.getCard());
+        stateLabels_.add(stateLabel);
+        super.setCard(1 + super.getCard());
+    }
+
+    // ~ Parents ~
+    public void addParent(Node parent) {
+        parents_.add(parent);
+    }
+
+    public List<Node> getParents() {
         return parents_;
     }
+
+    // TODO implement CPT
+    // ~ CPT ~
+    private CPT cpt_;
 
     public CPT generateTable(){
 
         VarSet vars = new VarSet();
 
-        int childIndex = this.getIndex();
-        int childCard = this.getNumberOfStates();
+        int childIndex = super.getIndex();
+        int childCard = super.getCard();
         vars.add(new Var(childIndex, childCard));
 
         for (Node parent:parents_) {
             int parentIndex = parent.getIndex();
-            int parentCard = parent.getNumberOfStates();
+            int parentCard = parent.getCard();
             vars.add(new Var(parentIndex, parentCard));
         }
 
-        int tableSize = util.BigIntegerUtil.toIntExact(vars.tableSize());
+        int tableSize = util.BigIntegerUtil.toIntExact(vars.nrStates());
         double[] data = new double[tableSize];
 
         cpt_ = new CPT(vars,data);
@@ -69,35 +94,5 @@ public class Node {
     public CPT getTable(){
         return cpt_;
     }
-
-
-    public String getName() {
-        return node_name_;
-    }
-
-    public int getIndex() {
-        return node_index_;
-    }
-
-    public int getNumberOfStates() {
-        return stateLabels_.size();
-    }
-
-
-    public int getStateIndex(String stateLabel) {
-        return statelabel_to_stateIndex_.get(stateLabel);
-    }
-
-    public String getStateLabel(int stateIndex) {
-        return stateLabels_.get(stateIndex);
-    }
-
-    public void addState(String label) {
-        if (statelabel_to_stateIndex_.containsKey(label)) {
-            throw new RuntimeException("duplicate state label!");
-        }
-        statelabel_to_stateIndex_.put(label, stateLabels_.size());
-        stateLabels_.add(label);
-    }
-
+    // TODO implement CPT
 }

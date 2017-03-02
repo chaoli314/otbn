@@ -21,7 +21,7 @@ public class Factor {
 
     public Factor(VarSet vars) {
         scope_ = vars;
-        data_ = new double[toIntExact(scope_.tableSize())];
+        data_ = new double[toIntExact(scope_.nrStates())];
     }
 
     public void fill(double x) {
@@ -182,7 +182,7 @@ public class Factor {
      */
     public Factor marginal(VarSet vars) {
         VarSet res_vars = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vars.tableSize())];
+        double[] res_p = new double[toIntExact(res_vars.nrStates())];
         int[] i_res = indexFor(res_vars, this.scope_);
         for (int i = 0; i < this.data_.length; ++i)
             res_p[i_res[i]] += this.data_[i];
@@ -195,7 +195,7 @@ public class Factor {
      */
     public Factor maxMarginal(VarSet vars) {
         VarSet res_vs = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vs.tableSize())];
+        double[] res_p = new double[toIntExact(res_vs.nrStates())];
         int[] i_res = indexFor(res_vs, this.scope_);
         for (int i = 0; i < this.data_.length; ++i)
             if (data_[i] > res_p[i_res[i]]) res_p[i_res[i]] = data_[i];
@@ -224,7 +224,7 @@ public class Factor {
         VarSet C_vs = set_union(A.scope_, B.scope_);
         int[] i_A_for_C = indexFor(A.scope_, C_vs);
         int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.tableSize());
+        int C_tableSize = toIntExact(C_vs.nrStates());
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
             C_p[i_C] = A.data_[i_A_for_C[i_C]] * B.data_[i_B_for_C[i_C]];
@@ -236,7 +236,7 @@ public class Factor {
         VarSet C_vs = set_union(A.scope_, B.scope_);
         int[] i_A_for_C = indexFor(A.scope_, C_vs);
         int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.tableSize());
+        int C_tableSize = toIntExact(C_vs.nrStates());
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
             C_p[i_C] = A.data_[i_A_for_C[i_C]] + B.data_[i_B_for_C[i_C]];
@@ -248,7 +248,7 @@ public class Factor {
         VarSet C_vs = set_union(A.scope_, B.scope_);
         int[] i_A_for_C = indexFor(A.scope_, C_vs);
         int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.tableSize());
+        int C_tableSize = toIntExact(C_vs.nrStates());
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
             C_p[i_C] = A.data_[i_A_for_C[i_C]] - B.data_[i_B_for_C[i_C]];
@@ -263,7 +263,7 @@ public class Factor {
         VarSet C_vs = set_union(A.scope_, B.scope_);
         int[] i_A_for_C = indexFor(A.scope_, C_vs);
         int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.tableSize());
+        int C_tableSize = toIntExact(C_vs.nrStates());
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
             if (B.data_[i_B_for_C[i_C]] != 0) C_p[i_C] = A.data_[i_A_for_C[i_C]] / B.data_[i_B_for_C[i_C]];
@@ -429,8 +429,8 @@ public class Factor {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("variables: " + scope_ + "\n");
-        for (int linearState = 0; linearState < toIntExact(scope_.tableSize()); linearState++) {
-            s.append(("" + String.format("%2d", linearState) + "|card" + Arrays.toString(Index.calcState(scope_, linearState))) + "|prob: "
+        for (int linearState = 0; linearState < toIntExact(scope_.nrStates()); linearState++) {
+            s.append(("" + String.format("%2d", linearState) + "|getCard" + Arrays.toString(Index.calcState(scope_, linearState))) + "|prob: "
                     + String.format("%.5f", data_[linearState]) + "\n");
         }
         return s.toString();

@@ -10,45 +10,51 @@ import java.util.TreeSet;
  * Created by chaoli on 10/23/16.
  */
 public class VarSet extends ArrayList<Var> {
-
-    public VarSet(Collection<? extends Var> c) {
-        super(c);
-    }
-
+    // ~ Constructors ~
     /**
      * Constructs an empty list with an initial capacity of ten.
      */
     public VarSet() {
     }
-
-    public BigInteger tableSize() {
-        BigInteger tableSize = BigInteger.ONE;
-        for (Var v : this) tableSize = tableSize.multiply(BigInteger.valueOf(v.card()));
-        return tableSize;
+    /**
+     * Constructs a list containing the elements of the specified
+     * collection, in the order they are returned by the collection's
+     * iterator.
+     *
+     * @param c the collection whose elements are to be placed into this list
+     * @throws NullPointerException if the specified collection is null
+     */
+    public VarSet(Collection<Var> c) {
+        super(c);
     }
 
-    public static VarSet set_difference(final Collection<Var> A, final Collection<Var> B) {
-        Set<Var> result = new TreeSet<>();
-        result.addAll(A);
-        result.removeAll(B);
-        return new VarSet(result);
+    // ~ Methods ~
+    public BigInteger nrStates() {
+        BigInteger states = BigInteger.ONE;
+        for (Var var : this) states = states.multiply(BigInteger.valueOf(var.getCard()));
+        return states;
     }
 
-    public static VarSet set_intersection(final Collection<Var> A, final Collection<Var> B) {
-        Set<Var> result = new TreeSet<>();
-        result.addAll(A);
-        result.retainAll(B);
-        return new VarSet(result);
+    // ~ set_difference ~ set_intersection ~ set_symmetric_difference ~ set_union
+    public static VarSet set_difference(Collection<Var> A, Collection<Var> B) {
+        Set<Var> res = new TreeSet<>(A);
+        res.removeAll(B);
+        return new VarSet(res);
     }
 
-    public static VarSet set_union(final Collection<Var> A, final Collection<Var> B) {
-        Set<Var> result = new TreeSet<>();
-        result.addAll(A);
-        result.addAll(B);
-        return new VarSet(result);
+    public static VarSet set_intersection(Collection<Var> A, Collection<Var> B) {
+        Set<Var> res = new TreeSet<>(A);
+        res.retainAll(B);
+        return new VarSet(res);
     }
 
-    public static VarSet set_symmetric_difference(final Collection<Var> A, final Collection<Var> B) {
-        throw new java.lang.UnsupportedOperationException();
+    public static VarSet set_union(Collection<Var> A, Collection<Var> B) {
+        Set<Var> res = new TreeSet<>(A);
+        res.addAll(B);
+        return new VarSet(res);
+    }
+
+    public static VarSet set_symmetric_difference(Collection<Var> A, Collection<Var> B) {
+        throw new java.lang.UnsupportedOperationException("Invalid operation!");
     }
 }

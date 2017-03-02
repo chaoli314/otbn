@@ -1,6 +1,6 @@
 package io;
 
-import bayesian_network.Bayesian_network;
+import bayesian_network.BayesianNetwork;
 import bayesian_network.Node;
 import org.junit.After;
 import org.junit.Before;
@@ -11,35 +11,35 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by chaoli on 10/22/16.
  */
-public class HuginNetFileTest {
+public class HuginNetFormatTest {
 
-    Bayesian_network bn_;
-    String inFileName_;
+    BayesianNetwork bn_;
+    String file_name_;
 
     @Before
     public void setUp() throws Exception {
-        bn_ = new Bayesian_network();
+        bn_ = new BayesianNetwork();
     }
 
     @After
     public void tearDown() throws Exception {
         bn_ = null;
-        inFileName_ = null;
+        file_name_ = null;
     }
 
     @Test
     public void read() throws Exception {
-        inFileName_ = "bnr/bnlearn/asia.net";
-        bn_ = io.HuginNetFile.read(inFileName_);
+        file_name_ = "bnr/bnlearn/asia.net";
+        bn_ = HuginNetFormat.read(file_name_);
 
         /// parse nodes
-        assertEquals(8, bn_.size());
+        assertEquals(8, bn_.getNumberOfNodes());
         int broncIndex = bn_.getNodeIndex("bronc");
         assertEquals(4, broncIndex);
         Node broncNode = bn_.getNodeByIndex(4);
         assertEquals("yes", broncNode.getStateLabel(0));
         assertEquals(1, broncNode.getStateIndex("no"));
-        assertEquals(2, broncNode.getNumberOfStates());
+        assertEquals(2, broncNode.getCard());
 
         /// parse CPTs
         //  potential ( asia ){data = ( 0.01 0.99 );}
@@ -62,8 +62,6 @@ public class HuginNetFileTest {
     }
 
     @Test
-    public void save() throws Exception {
-
+    public void saveAsNet() throws Exception {
     }
-
 }

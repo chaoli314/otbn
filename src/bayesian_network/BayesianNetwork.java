@@ -10,40 +10,40 @@ import java.util.Map;
 /**
  * Created by chaoli on 10/20/16.
  */
-public class Bayesian_network {
+public class BayesianNetwork {
 
     private List<Node> nodes_;
     private Map<String, Integer> name_to_index_;
 
-    public Bayesian_network() {
+    public BayesianNetwork() {
         this.nodes_ = new ArrayList<>();
         this.name_to_index_ = new HashMap<>();
     }
 
-    public Node getNodeByName(String nodeName) {
-        int nodeIndex = name_to_index_.get(nodeName);
-        return nodes_.get(nodeIndex);
+    // ~ Methods ~
+
+    public Node getNodeByName(String node_name) {
+        int node_index = name_to_index_.get(node_name);
+        return nodes_.get(node_index);
     }
 
-    public Node getNodeByIndex(int nodeIndex) {
-        return nodes_.get(nodeIndex);
+    public Node getNodeByIndex(int node_index) {
+        return nodes_.get(node_index);
     }
 
-    public int getNodeIndex(String nodeName) {
-        return name_to_index_.get(nodeName);
+    public int getNodeIndex(String node_name) {
+        return name_to_index_.get(node_name);
     }
 
-    public String getNodeName(int nodeIndex) {
-        return nodes_.get(nodeIndex).getName();
+    public String getNodeName(int node_index) {
+        return nodes_.get(node_index).getName();
     }
 
-    public Node addNode(String nodeName) {
-        if (name_to_index_.containsKey(nodeName)) {
-            throw new RuntimeException("duplicate node names!");
-        }
-        int nodeIndex = name_to_index_.size();
-        name_to_index_.put(nodeName, nodeIndex);
-        Node node = new Node(this, nodeName, nodeIndex);
+    public Node addNode(String node_name) {
+        int node_index = name_to_index_.size();
+        name_to_index_.put(node_name, node_index);
+
+        Node node = new Node(this, node_name, node_index);
         nodes_.add(node);
         return node;
     }
@@ -52,16 +52,14 @@ public class Bayesian_network {
         return nodes_.size();
     }
 
-    public int size() {
-        return nodes_.size();
-    }
+    // TODO adding unit test script.
 
     public Graph getMoralGraph() {
 
         int V = nodes_.size();
         Graph graph = new Graph(V);
 
-        for (int childNodeIndex = 0; childNodeIndex < this.size(); ++childNodeIndex) {
+        for (int childNodeIndex = 0; childNodeIndex < this.getNumberOfNodes(); ++childNodeIndex) {
 
             Node childNode = getNodeByIndex(childNodeIndex);
             List<Node> parentNodes = childNode.getParents();
@@ -84,7 +82,10 @@ public class Bayesian_network {
     public int[] getWeights() {
         int N = nodes_.size();
         int[] weight = new int[N];
-        for (int i = 0; i < N; ++i) weight[i] = nodes_.get(i).getNumberOfStates();
+        for (int i = 0; i < N; ++i) weight[i] = nodes_.get(i).getCard();
         return weight;
     }
+    // TODO adding unit test script.
+
+
 }

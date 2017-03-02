@@ -10,46 +10,15 @@ import static org.junit.Assert.assertEquals;
  * Created by chaoli on 10/20/16.
  */
 public class Bayesian_networkTest {
-
-    private Bayesian_network bn_;
-
-    @Test
-    public void getNumberOfNodes() throws Exception {
-        assertEquals(0, bn_.getNumberOfNodes());
-        bn_.addNode("nodeA");
-        assertEquals(1, bn_.getNumberOfNodes());
-        bn_.addNode("nodeH");
-        assertEquals(2, bn_.getNumberOfNodes());
-        bn_.addNode("nodeO");
-        assertEquals(3, bn_.getNumberOfNodes());
-        bn_.addNode("nodeU");
-        assertEquals(4, bn_.getNumberOfNodes());
-    }
-
-
-
-
+    private BayesianNetwork bn_;
     @Before
     public void setUp() throws Exception {
-        bn_ = new Bayesian_network();
+        bn_ = new BayesianNetwork();
     }
 
     @After
     public void tearDown() throws Exception {
         bn_ = null;
-    }
-
-    @Test
-    public void addNode() throws Exception {
-        bn_.addNode("nodeA");
-        bn_.addNode("nodeH");
-        bn_.addNode("nodeO");
-        bn_.addNode("nodeU");
-
-        assertEquals("nodeA", bn_.getNodeByIndex(0).getName());
-        assertEquals("nodeH", bn_.getNodeByIndex(1).getName());
-        assertEquals("nodeO", bn_.getNodeByIndex(2).getName());
-        assertEquals("nodeU", bn_.getNodeByIndex(3).getName());
     }
 
     @Test
@@ -63,7 +32,6 @@ public class Bayesian_networkTest {
         assertEquals(1, bn_.getNodeByName("nodeH").getIndex());
         assertEquals(2, bn_.getNodeByName("nodeO").getIndex());
         assertEquals(3, bn_.getNodeByName("nodeU").getIndex());
-
     }
 
     @Test
@@ -105,4 +73,29 @@ public class Bayesian_networkTest {
         assertEquals("nodeU", bn_.getNodeName(3));
     }
 
+    @Test
+    public void addNode() throws Exception {
+        bn_.addNode("nodeA");
+        bn_.addNode("nodeH");
+        bn_.addNode("nodeO");
+        bn_.addNode("nodeU");
+
+        assertEquals("nodeA", bn_.getNodeByIndex(0).getName());
+        assertEquals("nodeH", bn_.getNodeByIndex(1).getName());
+        assertEquals("nodeO", bn_.getNodeByIndex(2).getName());
+        assertEquals("nodeU", bn_.getNodeByIndex(3).getName());
+    }
+
+    @Test
+    public void getNumberOfNodes() throws Exception {
+        assertEquals(0, bn_.getNumberOfNodes());
+        bn_.addNode("nodeA");
+        assertEquals(1, bn_.getNumberOfNodes());
+        bn_.addNode("nodeH");
+        assertEquals(2, bn_.getNumberOfNodes());
+        bn_.addNode("nodeO");
+        assertEquals(3, bn_.getNumberOfNodes());
+        bn_.addNode("nodeU");
+        assertEquals(4, bn_.getNumberOfNodes());
+    }
 }

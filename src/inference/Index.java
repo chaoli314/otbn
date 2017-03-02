@@ -12,7 +12,7 @@ public class Index {
 
         // The current linear index corresponding to the state of indexVars
         int _index = 0;
-        int tableSize = 1;//tableSize(forVars);
+        int tableSize = 1;//nrStates(forVars);
         int[] index = new int[tableSize];
 
         // For each variable in forVars, the amount of change in _index
@@ -28,7 +28,7 @@ public class Index {
 
         // //////////////////////////////////////////////////////////////////////////////////////////////
         for (int l = 0; l < numberOfVars; ++l)
-            card_[l] = forVars.get(l).card();
+            card_[l] = forVars.get(l).getCard();
 
         int sum = 1;
         for (int i = 0; i < indexVars.size(); ++i) {
@@ -54,8 +54,8 @@ public class Index {
     public final static int[] calcState(List<Var> vs, int linearState) {
         int[] state = new int[vs.size()];
         for (int i = 0; i < state.length; ++i) {
-            state[i] = linearState % vs.get(i).card();
-            linearState /= vs.get(i).card();
+            state[i] = linearState % vs.get(i).getCard();
+            linearState /= vs.get(i).getCard();
         }
         return state;
     }
@@ -66,7 +66,7 @@ public class Index {
         int linearState = 0;
         for (int i = 0; i < state.length; ++i) {
             linearState += prod * state[i];
-            prod *= vs.get(i).card();
+            prod *= vs.get(i).getCard();
         }
         return linearState;
     }
