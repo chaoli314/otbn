@@ -11,284 +11,79 @@ import static util.BigIntegerUtil.toIntExact;
 public class Factor {
 
     private VarSet scope_;
-    private double[] data_;
+    private double[] _p;
 
-    //  Constructors    ################################
-    public Factor(VarSet vars, double[] data) {
-        scope_ = vars;
-        data_ = data;
+    // ~ Constructors ~
+    public Factor(Var v) {
+        VarSet vars = new VarSet();
+        vars.add(v);
+        this.scope_ = vars;
+        _p = new double[scope_.nrStates().intValueExact()];
     }
 
     public Factor(VarSet vars) {
+        this.scope_ = vars;
+        _p = new double[scope_.nrStates().intValueExact()];
+    }
+
+    public Factor(VarSet vars, double[] p) {
         scope_ = vars;
-        data_ = new double[toIntExact(scope_.nrStates())];
-    }
-
-    public void fill(double x) {
-        Arrays.fill(data_, x);
-    }
-
-    /**
-     * Copy constructor
-     */
-    public Factor(Factor other) {
-        scope_ = new VarSet(other.scope_);
-        data_ = new double[other.data_.length];
-        System.arraycopy(other.data_, 0, this.data_, 0, other.data_.length);
+        _p = p;
     }
 
     //  Getters and Setters ##################################
-    public VarSet getVars() {
+    public VarSet vars() {
         return scope_;
     }
 
-    public double getDataItem(int index) {
-        return data_[index];
-    }
-
-    public void setDataItem(int index, double value) {
-        data_[index] = value;
-    }
-
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-
-    public Factor reorderVars(VarSet res_vars) {
-        int[] convertLinearIndex = indexFor(this.scope_, res_vars);
-        double[] res_p = new double[data_.length];
-        for (int i = 0; i < res_p.length; ++i) {
-            res_p[i] = this.data_[convertLinearIndex[i]];
-        }
-        return new Factor(res_vars, res_p);
-    }
-
-
-    // ~ Getters and Setters *********************************************************************
-
-    /**
-     * Returns reference to value vector
-     */
     public double[] p() {
-        return data_;
+        return _p;
     }
 
+    public void set(int index, double value) {
+        _p[index] = value;
+    }
 
-    // ~ Some simple statistics *********************************************************************
+    public double get(int index) {
+        return _p[index];
+    }
+
+    public void fill(double x) {
+        Arrays.fill(_p, x);
+    }
+
+    public int nrStates() {
+        return _p.length;
+    }
+
+    // ~ Information Theory ~
 
     /**
-     * Returns maximum of all values
-     */
-    public double max() {
-        return org.apache.commons.math3.stat.StatUtils.max(this.data_);
-    }
-
-    /**
-     * Returns minimum of all values
-     */
-    public double min() {
-        return org.apache.commons.math3.stat.StatUtils.min(this.data_);
-    }
-
-    /**
-     * Returns sum of all values
-     */
-    public double sum() {
-        return org.apache.commons.math3.stat.StatUtils.sum(this.data_);
-    }
-
-    /**
-     * Returns true if one or more entries are NaN
-     */
-    public boolean hasNaNs() {
-        boolean foundnan = false;
-        for (double p : data_) {
-            if (Double.isNaN(p)) {
-                foundnan = true;
-                break;
-            }
-        }
-        return foundnan;
-    }
-
-    /**
-     * Returns true if one or more values are negative
-     */
-    public boolean hasNegatives() {
-        boolean hasNegatives = false;
-        for (double p : this.data_) {
-            if (0 > p) {
-                hasNegatives = true;
-                break;
-            }
-        }
-        return hasNegatives;
-    }
-
-    // ~ 指数运算 *********************************************************************
-
-    /**
-     * Applies logarithm pointwise;uses log(0)==0;
-     */
-    public Factor takeLog() {
-        for (int i = 0; i < data_.length; ++i)
-            data_[i] = log0(data_[i]);
-        return this;
-    }
-
-    /**
-     * Returns pointwise logarithm
-     */
-    public Factor log() {
-        Factor x = new Factor(this);
-        x.takeLog();
-        return x;
-    }
-
-    /**
-     * Returns pointwise exponent
-     */
-    public Factor exp() {
-        Factor x = new Factor(this);
-        x.takeExp();
-        return x;
-    }
-
-    /**
-     * Applies exponent pointwise
-     */
-    public Factor takeExp() {
-        for (int i = 0; i < data_.length; ++i)
-            data_[i] = Math.exp(data_[i]);
-        return this;
-    }
-
-    // + - * / ; 加减乘除运算 *********************************************************************
-
-    /**
-     * Returns point-wise inverse ( uses 1/0==0; not 1/0==Infinity.)
-     */
-    public Factor inverse() {
-        Factor x = new Factor(this);
-        for (int i = 0; i < x.data_.length; ++i)
-            x.data_[i] = (x.data_[i] != 0 ? (1 / (x.data_[i])) : 0);
-        return x;
-    }
-
-    /**
-     * Returns marginal on vars, obtained by summing out all variables except those in vars; 周辺化
-     */
-    public Factor marginal(VarSet vars) {
-        VarSet res_vars = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vars.nrStates())];
-        int[] i_res = indexFor(res_vars, this.scope_);
-        for (int i = 0; i < this.data_.length; ++i)
-            res_p[i_res[i]] += this.data_[i];
-        return new Factor(res_vars, res_p);
-    }
-
-    /**
-     * Returns max-marginal on \a vars, obtained by maximizing all variables except those in \a vars, and normalizing the result if \a normed == \c
-     * true
-     */
-    public Factor maxMarginal(VarSet vars) {
-        VarSet res_vs = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vs.nrStates())];
-        int[] i_res = indexFor(res_vs, this.scope_);
-        for (int i = 0; i < this.data_.length; ++i)
-            if (data_[i] > res_p[i_res[i]]) res_p[i_res[i]] = data_[i];
-        return new Factor(res_vs, res_p);
-    }
-
-    /**
-     * reuse marginal
-     */
-    public Factor summing_out(VarSet vars) {
-        VarSet res_vars = set_difference(this.scope_, vars);
-        return this.marginal(res_vars);
-    }
-
-    /**
-     * Caution : mutate this factor
-     */
-    public Factor product(Factor that) {
-        Factor other = product(this, that);
-        this.scope_ = other.scope_;
-        this.data_ = other.data_;
-        return this;
-    }
-
-    public static Factor product(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
-        double[] C_p = new double[C_tableSize];
-        for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A.data_[i_A_for_C[i_C]] * B.data_[i_B_for_C[i_C]];
-        }
-        return new Factor(C_vs, C_p);
-    }
-
-    public static Factor sum(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
-        double[] C_p = new double[C_tableSize];
-        for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A.data_[i_A_for_C[i_C]] + B.data_[i_B_for_C[i_C]];
-        }
-        return new Factor(C_vs, C_p);
-    }
-
-    public static Factor difference(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
-        double[] C_p = new double[C_tableSize];
-        for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A.data_[i_A_for_C[i_C]] - B.data_[i_B_for_C[i_C]];
-        }
-        return new Factor(C_vs, C_p);
-    }
-
-    /**
-     * Specilized the divide by zero
-     */
-    public static Factor quotient(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
-        double[] C_p = new double[C_tableSize];
-        for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            if (B.data_[i_B_for_C[i_C]] != 0) C_p[i_C] = A.data_[i_A_for_C[i_C]] / B.data_[i_B_for_C[i_C]];
-        }
-        return new Factor(C_vs, C_p);
-    }
-
-    // ~ Entropy 情報理論など *********************************************************************
-
-    /**
-     * Returns logarithm of x, or 0 if x == 0;log(0) or log(x),x<0数学上无定义; make sure x is not negative
+     * Returns logarithm of x, or 0 if x == 0.
      */
     private static double log0(double x) {
-        return (x != 0) ? Math.log(x) : 0;
+        return (0 != x) ? java.lang.Math.log(x) : 0.0;
     }
 
     /**
-     * 条件：正規化してから、ENTROPYを計算すること；Returns the Shannon entropy of this factor
+     * Returns the Shannon entropy of this factor
      */
     public double entropy() {
-        double result = 0;
-        for (double p : data_)
-            result -= p * log0(p);
-        return result;
+        double entropy = 0;
+        for (double p : _p)
+            entropy = p * log0(p);
+        return -entropy;
     }
+
+
+
+
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+
 
     /**
      * using chain rule: H(XY) = H(X)+H(Y|X)
@@ -350,6 +145,218 @@ public class Factor {
         return H_X + H_Y - H_XY;
     }
 
+    public Factor reorderVars(VarSet res_vars) {
+        int[] convertLinearIndex = indexFor(this.scope_, res_vars);
+        double[] res_p = new double[_p.length];
+        for (int i = 0; i < res_p.length; ++i) {
+            res_p[i] = this._p[convertLinearIndex[i]];
+        }
+        return new Factor(res_vars, res_p);
+    }
+
+
+
+
+    // ~ Statistics ~
+    /**
+     * Returns maximum of all values.
+     */
+    public double max() {
+        return org.apache.commons.math3.stat.StatUtils.max(this._p);
+    }
+
+    /**
+     * Returns minimum of all values.
+     */
+    public double min() {
+        return org.apache.commons.math3.stat.StatUtils.min(this._p);
+    }
+
+    /**
+     * Returns sum of all values.
+     */
+    public double sum() {
+        return org.apache.commons.math3.stat.StatUtils.sum(this._p);
+    }
+
+    /**
+     * Returns true if one or more values are NaN.
+     */
+    public boolean hasNaNs() {
+        boolean hasNaNs = false;
+        for (double p : _p) {
+        if (Double.isNaN(p)) {
+                hasNaNs = true;
+                break;
+            }
+        }
+        return hasNaNs;
+    }
+
+    /**
+     * Returns true if one or more values are negative.
+     */
+    public boolean hasNegatives() {
+        boolean hasNegatives = false;
+        for (double p: this._p){
+            if (p < 0){
+                hasNegatives = true;
+                break;
+            }
+        }
+        return hasNegatives;
+    }
+
+
+
+
+
+    // ~ 指数运算 *********************************************************************
+
+    /**
+     * Applies logarithm pointwise;uses log(0)==0;
+     */
+    public Factor takeLog() {
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = log0(_p[i]);
+        return this;
+    }
+
+    /**
+     * Returns pointwise logarithm
+     */
+    public Factor log() {
+        Factor x = new Factor(this);
+        x.takeLog();
+        return x;
+    }
+
+    /**
+     * Returns pointwise exponent
+     */
+    public Factor exp() {
+        Factor x = new Factor(this);
+        x.takeExp();
+        return x;
+    }
+
+    /**
+     * Applies exponent pointwise
+     */
+    public Factor takeExp() {
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = Math.exp(_p[i]);
+        return this;
+    }
+
+    // + - * / ; 加减乘除运算 *********************************************************************
+
+    /**
+     * Returns point-wise inverse ( uses 1/0==0; not 1/0==Infinity.)
+     */
+    public Factor inverse() {
+        Factor x = new Factor(this);
+        for (int i = 0; i < x._p.length; ++i)
+            x._p[i] = (x._p[i] != 0 ? (1 / (x._p[i])) : 0);
+        return x;
+    }
+
+    /**
+     * Returns marginal on vars, obtained by summing out all variables except those in vars; 周辺化
+     */
+    public Factor marginal(VarSet vars) {
+        VarSet res_vars = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
+        double[] res_p = new double[toIntExact(res_vars.nrStates())];
+        int[] i_res = indexFor(res_vars, this.scope_);
+        for (int i = 0; i < this._p.length; ++i)
+            res_p[i_res[i]] += this._p[i];
+        return new Factor(res_vars, res_p);
+    }
+
+    /**
+     * Returns max-marginal on \a vars, obtained by maximizing all variables except those in \a vars, and normalizing the result if \a normed == \c
+     * true
+     */
+    public Factor maxMarginal(VarSet vars) {
+        VarSet res_vs = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
+        double[] res_p = new double[toIntExact(res_vs.nrStates())];
+        int[] i_res = indexFor(res_vs, this.scope_);
+        for (int i = 0; i < this._p.length; ++i)
+            if (_p[i] > res_p[i_res[i]]) res_p[i_res[i]] = _p[i];
+        return new Factor(res_vs, res_p);
+    }
+
+    /**
+     * reuse marginal
+     */
+    public Factor summing_out(VarSet vars) {
+        VarSet res_vars = set_difference(this.scope_, vars);
+        return this.marginal(res_vars);
+    }
+
+    /**
+     * Caution : mutate this factor
+     */
+    public Factor product(Factor that) {
+        Factor other = product(this, that);
+        this.scope_ = other.scope_;
+        this._p = other._p;
+        return this;
+    }
+
+    public static Factor product(Factor A, Factor B) {
+        VarSet C_vs = set_union(A.scope_, B.scope_);
+        int[] i_A_for_C = indexFor(A.scope_, C_vs);
+        int[] i_B_for_C = indexFor(B.scope_, C_vs);
+        int C_tableSize = toIntExact(C_vs.nrStates());
+        double[] C_p = new double[C_tableSize];
+        for (int i_C = 0; i_C < C_tableSize; i_C++) {
+            C_p[i_C] = A._p[i_A_for_C[i_C]] * B._p[i_B_for_C[i_C]];
+        }
+        return new Factor(C_vs, C_p);
+    }
+
+    public static Factor sum(Factor A, Factor B) {
+        VarSet C_vs = set_union(A.scope_, B.scope_);
+        int[] i_A_for_C = indexFor(A.scope_, C_vs);
+        int[] i_B_for_C = indexFor(B.scope_, C_vs);
+        int C_tableSize = toIntExact(C_vs.nrStates());
+        double[] C_p = new double[C_tableSize];
+        for (int i_C = 0; i_C < C_tableSize; i_C++) {
+            C_p[i_C] = A._p[i_A_for_C[i_C]] + B._p[i_B_for_C[i_C]];
+        }
+        return new Factor(C_vs, C_p);
+    }
+
+    public static Factor difference(Factor A, Factor B) {
+        VarSet C_vs = set_union(A.scope_, B.scope_);
+        int[] i_A_for_C = indexFor(A.scope_, C_vs);
+        int[] i_B_for_C = indexFor(B.scope_, C_vs);
+        int C_tableSize = toIntExact(C_vs.nrStates());
+        double[] C_p = new double[C_tableSize];
+        for (int i_C = 0; i_C < C_tableSize; i_C++) {
+            C_p[i_C] = A._p[i_A_for_C[i_C]] - B._p[i_B_for_C[i_C]];
+        }
+        return new Factor(C_vs, C_p);
+    }
+
+    /**
+     * Specilized the divide by zero
+     */
+    public static Factor quotient(Factor A, Factor B) {
+        VarSet C_vs = set_union(A.scope_, B.scope_);
+        int[] i_A_for_C = indexFor(A.scope_, C_vs);
+        int[] i_B_for_C = indexFor(B.scope_, C_vs);
+        int C_tableSize = toIntExact(C_vs.nrStates());
+        double[] C_p = new double[C_tableSize];
+        for (int i_C = 0; i_C < C_tableSize; i_C++) {
+            if (B._p[i_B_for_C[i_C]] != 0) C_p[i_C] = A._p[i_A_for_C[i_C]] / B._p[i_B_for_C[i_C]];
+        }
+        return new Factor(C_vs, C_p);
+    }
+
+
+
     // ~ methods *********************************************************************
 
     /**
@@ -357,8 +364,8 @@ public class Factor {
      */
     public double normalize() {
         double Z = sum(); // apache math lib
-        for (int i = 0; i < data_.length; ++i) {
-            data_[i] /= Z;
+        for (int i = 0; i < _p.length; ++i) {
+            _p[i] /= Z;
         }
         return Z;
     }
@@ -377,8 +384,8 @@ public class Factor {
      */
     public Factor randomize() {
         Random rand = new Random();
-        for (int i = 0; i < data_.length; ++i)
-            data_[i] = rand.nextDouble();
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = rand.nextDouble();
         return this;
     }
 
@@ -386,7 +393,7 @@ public class Factor {
      * Sets all values to 1/n, n is the table size
      */
     public Factor setUniform() {
-        Arrays.fill(data_, 1 / data_.length);
+        Arrays.fill(_p, 1 / _p.length);
         return this;
     }
 
@@ -399,7 +406,7 @@ public class Factor {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(data_);
+        result = prime * result + Arrays.hashCode(_p);
         result = prime * result + ((scope_ == null) ? 0 : scope_.hashCode());
         return result;
     }
@@ -415,7 +422,7 @@ public class Factor {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Factor other = (Factor) obj;
-        if (!Arrays.equals(data_, other.data_)) return false;
+        if (!Arrays.equals(_p, other._p)) return false;
         if (scope_ == null) {
             if (other.scope_ != null) return false;
         } else if (!scope_.equals(other.scope_)) return false;
@@ -431,10 +438,10 @@ public class Factor {
         s.append("variables: " + scope_ + "\n");
         for (int linearState = 0; linearState < toIntExact(scope_.nrStates()); linearState++) {
             s.append(("" + String.format("%2d", linearState) + "|getCard" + Arrays.toString(Index.calcState(scope_, linearState))) + "|prob: "
-                    + String.format("%.5f", data_[linearState]) + "\n");
+                    + String.format("%.5f", _p[linearState]) + "\n");
         }
         return s.toString();
-        // return "Factor [scope_=" + scope_ + ", data_=" + Arrays.toString(data_) + "]";
+        // return "Factor [scope_=" + scope_ + ", _p=" + Arrays.toString(_p) + "]";
     }
 
 
@@ -446,7 +453,13 @@ public class Factor {
     void slice() {
     }
 
-    public int getSize() {
-        return data_.length;
+
+    /**
+     * Copy constructor
+     */
+    public Factor(Factor other) {
+        scope_ = new VarSet(other.scope_);
+        _p = new double[other._p.length];
+        System.arraycopy(other._p, 0, this._p, 0, other._p.length);
     }
 }

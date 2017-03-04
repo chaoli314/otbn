@@ -14,6 +14,6 @@ public class CPT extends Factor {
      * @return child Var
      */
     public Var get_var() {
-        return this.getVars().get(0);
+        return this.vars().get(0);
     }
 }

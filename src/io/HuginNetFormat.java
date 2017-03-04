@@ -92,7 +92,7 @@ public class HuginNetFormat {
                 Scanner in = new Scanner(m_probability.group());
                 while (in.hasNextDouble()) {
                     double dataItem = in.nextDouble();
-                    cpt.setDataItem(index, dataItem);
+                    cpt.set(index, dataItem);
                     index++;
                 }
                 in.close();

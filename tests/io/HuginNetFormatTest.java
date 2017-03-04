@@ -44,21 +44,21 @@ public class HuginNetFormatTest {
         /// parse CPTs
         //  potential ( asia ){data = ( 0.01 0.99 );}
         assertEquals(0, bn_.getNodeByName("asia").getParents().size());
-        assertEquals(2, bn_.getNodeByName("asia").getTable().getSize());
-        assertEquals(0.01, bn_.getNodeByName("asia").getTable().getDataItem(0), 0.01);
-        assertEquals(0.99, bn_.getNodeByName("asia").getTable().getDataItem(1), 0.01);
+        assertEquals(2, bn_.getNodeByName("asia").getTable().nrStates());
+        assertEquals(0.01, bn_.getNodeByName("asia").getTable().get(0), 0.01);
+        assertEquals(0.99, bn_.getNodeByName("asia").getTable().get(1), 0.01);
 
     //  potential ( either | lung tub ){data = (((1.0 0.0)(1.0 0.0))((1.0 0.0)(0.0 1.0))) ;}
         assertEquals(2, bn_.getNodeByName("either").getParents().size());
-        assertEquals(8, bn_.getNodeByName("either").getTable().getSize());
-        assertEquals(1.0, bn_.getNodeByName("either").getTable().getDataItem(0), 0.01);
-        assertEquals(0.0, bn_.getNodeByName("either").getTable().getDataItem(1), 0.01);
-        assertEquals(1.0, bn_.getNodeByName("either").getTable().getDataItem(2), 0.01);
-        assertEquals(0.0, bn_.getNodeByName("either").getTable().getDataItem(3), 0.01);
-        assertEquals(1.0, bn_.getNodeByName("either").getTable().getDataItem(4), 0.01);
-        assertEquals(0.0, bn_.getNodeByName("either").getTable().getDataItem(5), 0.01);
-        assertEquals(0.0, bn_.getNodeByName("either").getTable().getDataItem(6), 0.01);
-        assertEquals(1.0, bn_.getNodeByName("either").getTable().getDataItem(7), 0.01);
+        assertEquals(8, bn_.getNodeByName("either").getTable().nrStates());
+        assertEquals(1.0, bn_.getNodeByName("either").getTable().get(0), 0.01);
+        assertEquals(0.0, bn_.getNodeByName("either").getTable().get(1), 0.01);
+        assertEquals(1.0, bn_.getNodeByName("either").getTable().get(2), 0.01);
+        assertEquals(0.0, bn_.getNodeByName("either").getTable().get(3), 0.01);
+        assertEquals(1.0, bn_.getNodeByName("either").getTable().get(4), 0.01);
+        assertEquals(0.0, bn_.getNodeByName("either").getTable().get(5), 0.01);
+        assertEquals(0.0, bn_.getNodeByName("either").getTable().get(6), 0.01);
+        assertEquals(1.0, bn_.getNodeByName("either").getTable().get(7), 0.01);
     }
 
     @Test
