@@ -84,7 +84,7 @@ public class Node extends Var {
             vars.add(new Var(parentIndex, parentCard));
         }
 
-        int tableSize = util.BigIntegerUtil.toIntExact(vars.nrStates());
+        int tableSize = vars.nrStates().intValueExact();
         double[] data = new double[tableSize];
 
         cpt_ = new CPT(vars,data);

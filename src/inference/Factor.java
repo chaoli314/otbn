@@ -1,6 +1,7 @@
 package inference;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 import static inference.Index.indexFor;
@@ -9,6 +10,21 @@ import static util.BigIntegerUtil.toIntExact;
 
 /*** Created by chao li on 10/23/16.*/
 public class Factor {
+
+    /**
+     * Returns logarithm of x, or 0 if x == 0.
+     */
+    private static final double log0(double x) {
+        return (0.0 == x) ? 0.0 : java.lang.Math.log(x);
+    }
+
+    private static final double divides0(double x, double y) {
+        return (0.0 == y ? 0.0 : (x / y));
+    }
+
+    private static final double inverse(double x) {
+        return (0.0 == x) ? 0.0 : 1.0 / x;
+    }
 
     private VarSet scope_;
     private double[] _p;
@@ -31,7 +47,16 @@ public class Factor {
         _p = p;
     }
 
-    //  Getters and Setters ##################################
+    /**
+     * Copy constructor
+     */
+    public Factor(Factor other) {
+        scope_ = new VarSet(other.scope_);
+        _p = new double[other._p.length];
+        System.arraycopy(other._p, 0, this._p, 0, other._p.length);
+    }
+
+    // ~ Getters and Setters ~
     public VarSet vars() {
         return scope_;
     }
@@ -56,108 +81,8 @@ public class Factor {
         return _p.length;
     }
 
-    // ~ Information Theory ~
-
-    /**
-     * Returns logarithm of x, or 0 if x == 0.
-     */
-    private static double log0(double x) {
-        return (0 != x) ? java.lang.Math.log(x) : 0.0;
-    }
-
-    /**
-     * Returns the Shannon entropy of this factor
-     */
-    public double entropy() {
-        double entropy = 0;
-        for (double p : _p)
-            entropy = p * log0(p);
-        return -entropy;
-    }
-
-
-
-
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-
-
-    /**
-     * using chain rule: H(XY) = H(X)+H(Y|X)
-     */
-    public double conditional_entropy(Var x) {
-
-        VarSet X = new VarSet();
-        X.add(x);
-
-        double H_XY = this.entropy();
-        double H_X = this.marginal(X).entropy();
-        return H_XY - H_X;
-    }
-
-    /**
-     * using chain rule: H(XY) = H(X)+H(Y|X) => (result = H_XY - H_X)
-     */
-    public double conditional_entropy(VarSet X) {
-        double H_XY = this.entropy();
-        double H_X = this.marginal(X).entropy();
-        return H_XY - H_X;
-    }
-
-    /**
-     * I(X;Y) = H(Y) + H(X) - H(XY)
-     */
-    public double MutualInfo(Var x, Var y) {
-
-        VarSet X = new VarSet();
-        X.add(x);
-
-        VarSet Y = new VarSet();
-        Y.add(y);
-
-        VarSet XY = new VarSet();
-        XY.add(x);
-        XY.add(y);
-
-        double H_X = this.marginal(X).entropy();
-        double H_Y = this.marginal(Y).entropy();
-        double H_XY = this.marginal(XY).entropy();
-
-        return H_X + H_Y - H_XY;
-    }
-
-    /**
-     * I(X;Y) = H(Y) + H(X) - H(XY)
-     */
-    public double MutualInfo(VarSet X, VarSet Y) {
-
-        VarSet XY = new VarSet();
-        XY.addAll(X);
-        XY.addAll(Y);
-
-        double H_X = this.marginal(X).entropy();
-        double H_Y = this.marginal(Y).entropy();
-        double H_XY = this.marginal(XY).entropy();
-
-        return H_X + H_Y - H_XY;
-    }
-
-    public Factor reorderVars(VarSet res_vars) {
-        int[] convertLinearIndex = indexFor(this.scope_, res_vars);
-        double[] res_p = new double[_p.length];
-        for (int i = 0; i < res_p.length; ++i) {
-            res_p[i] = this._p[convertLinearIndex[i]];
-        }
-        return new Factor(res_vars, res_p);
-    }
-
-
-
-
     // ~ Statistics ~
+
     /**
      * Returns maximum of all values.
      */
@@ -185,7 +110,7 @@ public class Factor {
     public boolean hasNaNs() {
         boolean hasNaNs = false;
         for (double p : _p) {
-        if (Double.isNaN(p)) {
+            if (Double.isNaN(p)) {
                 hasNaNs = true;
                 break;
             }
@@ -198,8 +123,8 @@ public class Factor {
      */
     public boolean hasNegatives() {
         boolean hasNegatives = false;
-        for (double p: this._p){
-            if (p < 0){
+        for (double p : this._p) {
+            if (p < 0) {
                 hasNegatives = true;
                 break;
             }
@@ -207,83 +132,17 @@ public class Factor {
         return hasNegatives;
     }
 
-
-
-
-
-    // ~ 指数运算 *********************************************************************
-
-    /**
-     * Applies logarithm pointwise;uses log(0)==0;
-     */
-    public Factor takeLog() {
-        for (int i = 0; i < _p.length; ++i)
-            _p[i] = log0(_p[i]);
-        return this;
-    }
-
-    /**
-     * Returns pointwise logarithm
-     */
-    public Factor log() {
-        Factor x = new Factor(this);
-        x.takeLog();
-        return x;
-    }
-
-    /**
-     * Returns pointwise exponent
-     */
-    public Factor exp() {
-        Factor x = new Factor(this);
-        x.takeExp();
-        return x;
-    }
-
-    /**
-     * Applies exponent pointwise
-     */
-    public Factor takeExp() {
-        for (int i = 0; i < _p.length; ++i)
-            _p[i] = Math.exp(_p[i]);
-        return this;
-    }
-
-    // + - * / ; 加减乘除运算 *********************************************************************
-
-    /**
-     * Returns point-wise inverse ( uses 1/0==0; not 1/0==Infinity.)
-     */
-    public Factor inverse() {
-        Factor x = new Factor(this);
-        for (int i = 0; i < x._p.length; ++i)
-            x._p[i] = (x._p[i] != 0 ? (1 / (x._p[i])) : 0);
-        return x;
-    }
+    // ~ Marginalization ~
 
     /**
      * Returns marginal on vars, obtained by summing out all variables except those in vars; 周辺化
      */
     public Factor marginal(VarSet vars) {
-        VarSet res_vars = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vars.nrStates())];
+        VarSet res_vars = set_intersection(this.scope_, vars);
+        double[] res_p = new double[res_vars.nrStates().intValueExact()];
         int[] i_res = indexFor(res_vars, this.scope_);
-        for (int i = 0; i < this._p.length; ++i)
-            res_p[i_res[i]] += this._p[i];
+        for (int i = 0; i < this._p.length; ++i) res_p[i_res[i]] += this._p[i];
         return new Factor(res_vars, res_p);
-    }
-
-    /**
-     * Returns max-marginal on \a vars, obtained by maximizing all variables except those in \a vars, and normalizing the result if \a normed == \c
-     * true
-     */
-    public Factor maxMarginal(VarSet vars) {
-        VarSet res_vs = set_intersection(this.scope_, vars); // もし、vars有多余变量，无视他
-        double[] res_p = new double[toIntExact(res_vs.nrStates())];
-        int[] i_res = indexFor(res_vs, this.scope_);
-        for (int i = 0; i < this._p.length; ++i)
-            if (_p[i] > res_p[i_res[i]]) res_p[i_res[i]] = _p[i];
-        return new Factor(res_vs, res_p);
     }
 
     /**
@@ -295,14 +154,159 @@ public class Factor {
     }
 
     /**
-     * Caution : mutate this factor
+     * Returns max-marginal on \a vars, obtained by maximizing all variables except those in \a vars, and normalizing the result if \a normed == \c
+     * true
      */
-    public Factor product(Factor that) {
-        Factor other = product(this, that);
-        this.scope_ = other.scope_;
-        this._p = other._p;
+    public Factor maxMarginal(VarSet vars) {
+        VarSet res_vars = set_intersection(this.scope_, vars);
+        double[] res_p = new double[res_vars.nrStates().intValueExact()];
+        int[] i_res = indexFor(res_vars, this.scope_);
+        for (int i = 0; i < this._p.length; ++i) if (_p[i] > res_p[i_res[i]]) res_p[i_res[i]] = _p[i];
+        return new Factor(res_vars, res_p);
+    }
+
+    // ~ Unary transformations ~
+
+    /**
+     * Returns pointwise exponent.
+     */
+    public Factor exp() {
+        Factor x = new Factor(this);
+        x.takeExp();
+        return x;
+    }
+
+    /**
+     * Returns pointwise logarithm.
+     */
+    public Factor log0() {
+        Factor x = new Factor(this);
+        x.takeLog0();
+        return x;
+    }
+
+    /**
+     * Returns pointwise inverse.
+     */
+    public Factor inverse() {
+        Factor x = new Factor(this);
+        for (int i = 0; i < x._p.length; ++i)
+            x._p[i] = inverse(x._p[i]);
+        return x;
+    }
+
+    /**
+     * Returns normalized copy of this factor.
+     */
+    public Factor normalized() {
+        Factor x = new Factor(this); // Non-modifying operations
+        x.normalize(); // Modifying operations
+        return x;
+    }
+
+    // ~ Unary operations ~
+
+    /**
+     * Draws all values i.i.d. from a uniform distribution on [0,1)
+     */
+    public Factor randomize() {
+        Random rnd = new Random();
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = rnd.nextDouble();
         return this;
     }
+
+    /**
+     * Sets all values to 1/n, where n is the number of states.
+     */
+    public Factor setUniform() {
+        Arrays.fill(_p, 1.0 / (double) _p.length);
+        return this;
+    }
+
+    /**
+     * Applies exponent pointwise.
+     */
+    public Factor takeExp() {
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = Math.exp(_p[i]);
+        return this;
+    }
+
+    /**
+     * Applies logarithm pointwise.
+     */
+    public Factor takeLog0() {
+        for (int i = 0; i < _p.length; ++i)
+            _p[i] = log0(_p[i]);
+        return this;
+    }
+
+    /**
+     * Normalizes this factor.
+     */
+    public double normalize() {
+        final double Z = sum();
+        for (int i = 0; i < _p.length; ++i) _p[i] /= Z;
+        return Z;
+    }
+
+    // ~ Information Theory ~
+
+    /**
+     * Returns the Shannon entropy of this factor
+     */
+    public double entropy() {
+        double entropy = 0;
+        for (double p : _p)
+            entropy = p * log0(p);
+        return -entropy;
+    }
+
+    /**
+     * chain rule: H(Y|X) = H(X,Y) - H(X)
+     */
+    public double conditional_entropy(VarSet X) {
+        double H_XY = this.entropy();
+        double H_X = this.marginal(X).entropy();
+        return H_XY - H_X;
+    }
+
+    /**
+     * chain rule: H(Y|X) = H(X,Y) - H(X)
+     */
+    public double conditional_entropy(Var x) {
+        return conditional_entropy(new VarSet(x));
+    }
+
+    /**
+     * I(X;Y) = H(Y) + H(X) - H(XY)
+     */
+    public double MutualInfo(Var x, Var y) {
+        return MutualInfo(new VarSet(x), new VarSet(y));
+    }
+
+    /**
+     * I(X;Y) = H(X) + H(Y) - H(XY)
+     */
+    public double MutualInfo(VarSet X, VarSet Y) {
+        VarSet XY = set_union(X, Y);
+        double H_X = this.marginal(X).entropy();
+        double H_Y = this.marginal(Y).entropy();
+        double H_XY = this.marginal(XY).entropy();
+        return H_X + H_Y - H_XY;
+    }
+
+
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+    ////////////// under review////////////// under review////////////// under review
+
+    // + - * / ##########################################
+
+
 
     public static Factor product(Factor A, Factor B) {
         VarSet C_vs = set_union(A.scope_, B.scope_);
@@ -358,76 +362,29 @@ public class Factor {
 
 
     // ~ methods *********************************************************************
-
-    /**
-     * Normalizes this factor
-     */
-    public double normalize() {
-        double Z = sum(); // apache math lib
-        for (int i = 0; i < _p.length; ++i) {
-            _p[i] /= Z;
-        }
-        return Z;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Factor factor = (Factor) o;
+        return Objects.equals(scope_, factor.scope_) &&
+                Arrays.equals(_p, factor._p);
     }
 
-    /**
-     * Returns normalized copy of this
-     */
-    public Factor normalized() {
-        Factor x = new Factor(this);
-        x.normalize();
-        return x;
-    }
-
-    /**
-     * Draws all values i.i.d. from a uniform distribution on [0,1)
-     */
-    public Factor randomize() {
-        Random rand = new Random();
-        for (int i = 0; i < _p.length; ++i)
-            _p[i] = rand.nextDouble();
-        return this;
-    }
-
-    /**
-     * Sets all values to 1/n, n is the table size
-     */
-    public Factor setUniform() {
-        Arrays.fill(_p, 1 / _p.length);
-        return this;
-    }
-
-    /**
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Arrays.hashCode(_p);
-        result = prime * result + ((scope_ == null) ? 0 : scope_.hashCode());
-        return result;
+        return Objects.hash(scope_, _p);
     }
 
+
+    // ~ 実装していないメソッド *********************************************************************
+
     /**
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
+     * not yet
      */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Factor other = (Factor) obj;
-        if (!Arrays.equals(_p, other._p)) return false;
-        if (scope_ == null) {
-            if (other.scope_ != null) return false;
-        } else if (!scope_.equals(other.scope_)) return false;
-        return true;
+    void slice() {
     }
+
 
     /**
      * Writes a factor to an output stream
@@ -444,22 +401,22 @@ public class Factor {
         // return "Factor [scope_=" + scope_ + ", _p=" + Arrays.toString(_p) + "]";
     }
 
-
-    // ~ 実装していないメソッド *********************************************************************
-
-    /**
-     * not yet
-     */
-    void slice() {
+    public Factor reorderVars(VarSet res_vars) {
+        int[] convertLinearIndex = indexFor(this.scope_, res_vars);
+        double[] res_p = new double[_p.length];
+        for (int i = 0; i < res_p.length; ++i) {
+            res_p[i] = this._p[convertLinearIndex[i]];
+        }
+        return new Factor(res_vars, res_p);
     }
 
-
     /**
-     * Copy constructor
-     */
-    public Factor(Factor other) {
-        scope_ = new VarSet(other.scope_);
-        _p = new double[other._p.length];
-        System.arraycopy(other._p, 0, this._p, 0, other._p.length);
-    }
+     * Caution : mutate this factor
+     *//*
+    public Factor product(Factor that) {
+        Factor other = product(this, that);
+        this.scope_ = other.scope_;
+        this._p = other._p;
+        return this;
+    }*/
 }

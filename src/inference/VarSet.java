@@ -24,8 +24,17 @@ public class VarSet extends ArrayList<Var> {
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
-    public VarSet(Collection<Var> c) {
+    public VarSet(Collection<? extends Var> c) {
         super(c);
+    }
+
+    public  VarSet (Var t) {
+        this.add(t);
+    }
+
+    public  VarSet (Var t1, Var t2){
+        this.add(t1);
+        this.add(t2);
     }
 
     // ~ Methods ~

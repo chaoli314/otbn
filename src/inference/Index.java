@@ -12,7 +12,7 @@ public class Index {
 
         // The current linear index corresponding to the state of indexVars
         int _index = 0;
-        int tableSize = 1;//nrStates(forVars);
+        int tableSize = forVars.nrStates().intValueExact();
         int[] index = new int[tableSize];
 
         // For each variable in forVars, the amount of change in _index
