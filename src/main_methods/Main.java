@@ -15,6 +15,7 @@ public class Main {
         Graph g = bn.getMoralGraph();
         int[] weights = bn.getWeights();
 
+        System.out.print(g);
 
 
    /*

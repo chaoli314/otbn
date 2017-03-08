@@ -22,7 +22,7 @@ public class Var implements Comparable<Var> {
         return card_;
     }
 
-    public void setCard(int card) {
+    protected void setCard(int card) {
         this.card_ = card;
     }
 

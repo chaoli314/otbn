@@ -4,9 +4,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
-import static inference.Index.indexFor;
+import static inference.Index.IndexFor;
 import static inference.VarSet.*;
-import static util.BigIntegerUtil.toIntExact;
 
 /*** Created by chao li on 10/23/16.*/
 public class Factor {
@@ -140,7 +139,7 @@ public class Factor {
     public Factor marginal(VarSet vars) {
         VarSet res_vars = set_intersection(this.scope_, vars);
         double[] res_p = new double[res_vars.nrStates().intValueExact()];
-        int[] i_res = indexFor(res_vars, this.scope_);
+        int[] i_res = IndexFor(res_vars, this.scope_);
         for (int i = 0; i < this._p.length; ++i) res_p[i_res[i]] += this._p[i];
         return new Factor(res_vars, res_p);
     }
@@ -160,7 +159,7 @@ public class Factor {
     public Factor maxMarginal(VarSet vars) {
         VarSet res_vars = set_intersection(this.scope_, vars);
         double[] res_p = new double[res_vars.nrStates().intValueExact()];
-        int[] i_res = indexFor(res_vars, this.scope_);
+        int[] i_res = IndexFor(res_vars, this.scope_);
         for (int i = 0; i < this._p.length; ++i) if (_p[i] > res_p[i_res[i]]) res_p[i_res[i]] = _p[i];
         return new Factor(res_vars, res_p);
     }
@@ -307,61 +306,60 @@ public class Factor {
     // + - * / ##########################################
 
 
-
-    public static Factor product(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
-        double[] C_p = new double[C_tableSize];
+    public static Factor multiply(Factor A, Factor B) {
+        VarSet result_vs = set_union(A.scope_, B.scope_);
+        int[] i_A = IndexFor(A.scope_, result_vs);
+        int[] i_B = IndexFor(B.scope_, result_vs);
+        final int C_tableSize = result_vs.nrStates().intValueExact();
+        double[] result_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A._p[i_A_for_C[i_C]] * B._p[i_B_for_C[i_C]];
+            result_p[i_C] = A._p[i_A[i_C]] * B._p[i_B[i_C]];
         }
-        return new Factor(C_vs, C_p);
+        return new Factor(result_vs, result_p);
     }
 
     public static Factor sum(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
+        VarSet result_vs = set_union(A.scope_, B.scope_);
+        int[] i_A = IndexFor(A.scope_, result_vs);
+        int[] i_B = IndexFor(B.scope_, result_vs);
+        final int C_tableSize = result_vs.nrStates().intValueExact();
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A._p[i_A_for_C[i_C]] + B._p[i_B_for_C[i_C]];
+            C_p[i_C] = A._p[i_A[i_C]] + B._p[i_B[i_C]];
         }
-        return new Factor(C_vs, C_p);
+        return new Factor(result_vs, C_p);
     }
 
     public static Factor difference(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
+        VarSet result_vs = set_union(A.scope_, B.scope_);
+        int[] i_A = IndexFor(A.scope_, result_vs);
+        int[] i_B = IndexFor(B.scope_, result_vs);
+        final int C_tableSize = result_vs.nrStates().intValueExact();
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            C_p[i_C] = A._p[i_A_for_C[i_C]] - B._p[i_B_for_C[i_C]];
+            C_p[i_C] = A._p[i_A[i_C]] - B._p[i_B[i_C]];
         }
-        return new Factor(C_vs, C_p);
+        return new Factor(result_vs, C_p);
     }
 
     /**
      * Specilized the divide by zero
      */
     public static Factor quotient(Factor A, Factor B) {
-        VarSet C_vs = set_union(A.scope_, B.scope_);
-        int[] i_A_for_C = indexFor(A.scope_, C_vs);
-        int[] i_B_for_C = indexFor(B.scope_, C_vs);
-        int C_tableSize = toIntExact(C_vs.nrStates());
+        VarSet result_vs = set_union(A.scope_, B.scope_);
+        int[] i_A = IndexFor(A.scope_, result_vs);
+        int[] i_B = IndexFor(B.scope_, result_vs);
+        final int C_tableSize = result_vs.nrStates().intValueExact();
         double[] C_p = new double[C_tableSize];
         for (int i_C = 0; i_C < C_tableSize; i_C++) {
-            if (B._p[i_B_for_C[i_C]] != 0) C_p[i_C] = A._p[i_A_for_C[i_C]] / B._p[i_B_for_C[i_C]];
+            if (B._p[i_B[i_C]] != 0) C_p[i_C] = A._p[i_A[i_C]] / B._p[i_B[i_C]];
         }
-        return new Factor(C_vs, C_p);
+        return new Factor(result_vs, C_p);
     }
 
-
-
     // ~ methods *********************************************************************
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -376,33 +374,23 @@ public class Factor {
         return Objects.hash(scope_, _p);
     }
 
-
-    // ~ 実装していないメソッド *********************************************************************
-
-    /**
-     * not yet
-     */
-    void slice() {
-    }
-
-
-    /**
-     * Writes a factor to an output stream
-     */
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("variables: " + scope_ + "\n");
-        for (int linearState = 0; linearState < toIntExact(scope_.nrStates()); linearState++) {
-            s.append(("" + String.format("%2d", linearState) + "|getCard" + Arrays.toString(Index.calcState(scope_, linearState))) + "|prob: "
-                    + String.format("%.5f", _p[linearState]) + "\n");
+        for (int linearState = 0; linearState < scope_.nrStates().intValueExact(); ++linearState) {
+            s.append(String.format("%3d", linearState) + "|getCard" + Index.calcState(scope_, linearState) + "|prob: "
+                    + String.format("%.3f", _p[linearState]) + "\n");
         }
         return s.toString();
         // return "Factor [scope_=" + scope_ + ", _p=" + Arrays.toString(_p) + "]";
     }
 
+    // ~ 実装していないメソッド *********************************************************************
+
+
     public Factor reorderVars(VarSet res_vars) {
-        int[] convertLinearIndex = indexFor(this.scope_, res_vars);
+        int[] convertLinearIndex = IndexFor(this.scope_, res_vars);
         double[] res_p = new double[_p.length];
         for (int i = 0; i < res_p.length; ++i) {
             res_p[i] = this._p[convertLinearIndex[i]];
@@ -413,8 +401,8 @@ public class Factor {
     /**
      * Caution : mutate this factor
      *//*
-    public Factor product(Factor that) {
-        Factor other = product(this, that);
+    public Factor multiply(Factor that) {
+        Factor other = multiply(this, that);
         this.scope_ = other.scope_;
         this._p = other._p;
         return this;

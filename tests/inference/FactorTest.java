@@ -64,4 +64,34 @@ public class FactorTest {
         assertEquals(y.get(1), x.get(2) + x.get(3), tol);
         assertEquals(y.get(2), x.get(4) + x.get(5), tol);
     }
+
+    @Test
+    public void multiply() throws Exception {
+
+        final int N = 9;
+        Var v1 = new Var(1, 3);
+        Var v2 = new Var(2, 3);
+        Factor x = new Factor(v1);
+        x.set(0, 2.0);
+        x.set(1, 0.0);
+        x.set(2, -1.0);
+        Factor y = new Factor(v2);
+        y.set(0, 0.5);
+        y.set(1, -1.0);
+        y.set(2, 0.0);
+        Factor r;
+
+        Factor z = new Factor(new VarSet(v1, v2));
+        z.set(0, 1.0);
+        z.set(1, 0.0);
+        z.set(2, -0.5);
+        z.set(3, -2.0);
+        z.set(4, 0.0);
+        z.set(5, 1.0);
+        z.set(6, 0.0);
+        z.set(7, 0.0);
+        z.set(8, 0.0);
+        r = Factor.multiply(x, y);
+        assertArrayEquals(z.p(), r.p(), tol);
+    }
 }
