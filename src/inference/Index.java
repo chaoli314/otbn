@@ -11,9 +11,11 @@ public class Index {
     /**
      * IndexFor
      */
-    public final static int[] IndexFor(VarSet indexVars, VarSet forVars) {
+    public final static int[] IndexFor(List<Var> indexVars, List<Var> forVars) {
+        int states = 1;
+        for (Var var : forVars) states *= var.getCard() ;
+        final int kTableSize = states;
         final int kNumberOfVars = forVars.size();
-        final int kTableSize = forVars.nrStates().intValueExact();
         // card[]
         int[] card = new int[kNumberOfVars];
         for (int l = 0; l < kNumberOfVars; ++l)
@@ -50,12 +52,12 @@ public class Index {
     /**
      * calcLinearState
      */
-    public final static int calcLinearState(final List<Var> vs, Map<Var, Integer> state) {
+    public final static int calcLinearState(final List<Var> vs, Map<Integer, Integer> state) {
         int prod = 1;
         int linearState = 0;
         // ~ linearState ~
         for (Var v : vs) {
-            int m = state.get(v);
+            int m = state.get(v.getIndex());
             linearState += prod * m;
             prod *= v.getCard();
         }
@@ -65,10 +67,10 @@ public class Index {
     /**
      * calcState
      */
-    public final static Map<Var, Integer> calcState(List<Var> vs, int linearState) {
-        Map<Var, Integer> state = new TreeMap<>();
+    public final static Map<Integer, Integer> calcState(List<Var> vs, int linearState) {
+        Map<Integer, Integer> state = new TreeMap<>();
         for (Var v : vs) {
-            state.put(v, linearState % v.getCard());
+            state.put(v.getIndex(), linearState % v.getCard());
             linearState /= v.getCard();
         }
         return state;

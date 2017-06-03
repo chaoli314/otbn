@@ -358,8 +358,6 @@ public class Factor {
     }
 
     // ~ methods *********************************************************************
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -390,10 +388,11 @@ public class Factor {
 
 
     public Factor reorderVars(VarSet res_vars) {
-        int[] convertLinearIndex = IndexFor(this.scope_, res_vars);
         double[] res_p = new double[_p.length];
+        //
+        int[] convert_index = IndexFor(scope_, res_vars);
         for (int i = 0; i < res_p.length; ++i) {
-            res_p[i] = this._p[convertLinearIndex[i]];
+            res_p[i] = _p[convert_index[i]];
         }
         return new Factor(res_vars, res_p);
     }

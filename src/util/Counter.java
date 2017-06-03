@@ -46,7 +46,7 @@ public class Counter implements Comparable<Counter> {
      * @return the current value of this counter
      */
     public long tally() {
-        return BigIntegerUtil.toLongExact(count);
+        return count.longValueExact();
     }
 
     /**

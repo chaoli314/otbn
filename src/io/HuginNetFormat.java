@@ -98,6 +98,8 @@ public class HuginNetFormat {
                 in.close();
             }
         }
+
+
         return bn;
     }
 

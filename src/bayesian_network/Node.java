@@ -24,6 +24,9 @@ public class Node extends Var {
 
     private List<Node> parents_;
 
+    // ~ CPT ~
+    private CPT cpt_;
+
     public Node(BayesianNetwork network,
                 String node_name,
                 int node_index) {
@@ -66,10 +69,7 @@ public class Node extends Var {
         return parents_;
     }
 
-    // TODO implement CPT
-    // ~ CPT ~
-    private CPT cpt_;
-
+    // ~ Create CPT ~
     public CPT generateTable(){
 
         VarSet vars = new VarSet();
@@ -86,7 +86,6 @@ public class Node extends Var {
 
         int tableSize = vars.nrStates().intValueExact();
         double[] data = new double[tableSize];
-
         cpt_ = new CPT(vars,data);
         return cpt_;
     }
@@ -94,5 +93,4 @@ public class Node extends Var {
     public CPT getTable(){
         return cpt_;
     }
-    // TODO implement CPT
 }

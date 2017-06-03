@@ -25,7 +25,6 @@ public class FactorTest {
 
     @Test
     public void marginal() throws Exception {
-
         Var v1 = new Var(1, 2);
         Var v2 = new Var(2, 3);
         VarSet vars = new VarSet();
@@ -67,7 +66,6 @@ public class FactorTest {
 
     @Test
     public void multiply() throws Exception {
-
         final int N = 9;
         Var v1 = new Var(1, 3);
         Var v2 = new Var(2, 3);

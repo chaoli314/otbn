@@ -26,40 +26,44 @@ public class BitSetUtil {
         return totalTableSize;
     }
 
-
+    //
     public static boolean includes(final BitSet superSet, final BitSet subSet) {
-        BitSet copiedSubSet= (BitSet) subSet.clone();
-        copiedSubSet.andNot(superSet);
-        return copiedSubSet.isEmpty();
+        BitSet result = (BitSet) subSet.clone();
+        result.andNot(superSet);
+        return result.isEmpty(); // Is Subset\Superset empty
     }
 
-    public static BitSet set_difference(final BitSet A, final BitSet B) {
-        BitSet result = (BitSet) A.clone();
-        result.andNot(B);
+    //  V \ W
+    public static BitSet set_difference(final BitSet V, final BitSet W) {
+        BitSet result = (BitSet) V.clone();
+        result.andNot(W);
         return result;
     }
 
-    public static BitSet set_intersection(final BitSet A, final BitSet B) {
-        BitSet result = (BitSet) A.clone();
-        result.and(B);
+    //  V & W
+    public static BitSet set_intersection(final BitSet V, final BitSet W) {
+        BitSet result = (BitSet) V.clone();
+        result.and(W);
         return result;
     }
 
+    //
+    public static BitSet set_union(final BitSet V, final BitSet W) {
+        BitSet result = (BitSet) V.clone();
+        result.or(W);
+        return result;
+    }
+
+    public static BitSet set_union(final BitSet V, final int w) {
+        BitSet result = (BitSet) V.clone();
+        result.set(w);
+        return result;
+    }
+
+    //
     public static BitSet set_symmetric_difference(final BitSet A, final BitSet B) {
         BitSet result = (BitSet) A.clone();
         result.xor(B);
         return result;
-    }
-
-    public static BitSet set_union(final BitSet A, final BitSet B) {
-        BitSet result = (BitSet) A.clone();
-        result.or(B);
-        return result;
-    }
-
-    public static BitSet set_union(final BitSet R, final int v) {
-        BitSet R_or_v = (BitSet) R.clone();
-        R_or_v.set(v);
-        return R_or_v;
     }
 }

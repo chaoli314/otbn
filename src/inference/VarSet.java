@@ -45,25 +45,25 @@ public class VarSet extends ArrayList<Var> {
     }
 
     // ~ set_difference ~ set_intersection ~ set_symmetric_difference ~ set_union
-    public static VarSet set_difference(Collection<Var> A, Collection<Var> B) {
-        Set<Var> res = new TreeSet<>(A);
-        res.removeAll(B);
+    public static VarSet set_difference(final Collection<Var> V, final Collection<Var> W) {
+        Set<Var> res = new TreeSet<>(V);
+        res.removeAll(W);
         return new VarSet(res);
     }
 
-    public static VarSet set_intersection(Collection<Var> A, Collection<Var> B) {
-        Set<Var> res = new TreeSet<>(A);
-        res.retainAll(B);
+    public static VarSet set_intersection(final Collection<Var> V, final Collection<Var> W) {
+        Set<Var> res = new TreeSet<>(V);
+        res.retainAll(W);
         return new VarSet(res);
     }
 
-    public static VarSet set_union(Collection<Var> A, Collection<Var> B) {
-        Set<Var> res = new TreeSet<>(A);
-        res.addAll(B);
+    public static VarSet set_union(final Collection<Var> V, final Collection<Var> W) {
+        Set<Var> res = new TreeSet<>(V);
+        res.addAll(W);
         return new VarSet(res);
     }
 
-    public static VarSet set_symmetric_difference(Collection<Var> A, Collection<Var> B) {
+    public static VarSet set_symmetric_difference(final Collection<Var> V, final Collection<Var> W) {
         throw new java.lang.UnsupportedOperationException("Invalid operation!");
     }
 }

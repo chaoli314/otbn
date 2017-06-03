@@ -10,12 +10,15 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Main starts.");
-        String filename = "bnr/bnlearn/asia.net";
+        String filename = "bnr/softbank/hc.net";
         BayesianNetwork bn = HuginNetFormat.read(filename);
         Graph g = bn.getMoralGraph();
         int[] weights = bn.getWeights();
+        //System.out.print(g);
+        //Graph h = new triangulation.GreedyFillin().run(g, weights);
+        //System.out.print(h);
 
-        System.out.print(g);
+
 
 
    /*
