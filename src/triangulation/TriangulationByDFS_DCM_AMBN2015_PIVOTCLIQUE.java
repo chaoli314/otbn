@@ -23,25 +23,12 @@ public class TriangulationByDFS_DCM_AMBN2015_PIVOTCLIQUE extends TriangulationBy
             return;
         }
 
-
-
         //  The number of nodes + 1
         nodeCounter_.increment();
 
         //  pivot   clique  selection strategy
         BitSet pivotClique = new BitSet(n_H.V());
         int max = 0;
-
-/*        ListIterator<BitSet> it = n_cliques.listIterator(n_cliques.size());
-        while (it.hasPrevious()){
-            BitSet clique = it.previous();
-            int size = set_intersection(clique, n_remaining).cardinality();
-            if (size > max) {
-                max = size;
-                pivotClique = clique;
-            }
-
-        }*/
 
         for (BitSet clique : n_cliques) {
             int size = set_intersection(clique, n_remaining).cardinality(); //int size = clique.cardinality();

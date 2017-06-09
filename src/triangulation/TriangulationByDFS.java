@@ -58,7 +58,7 @@ public abstract class TriangulationByDFS extends OptimalTriangulation {
 
     @Override
     public void printStatistics() {
-
+        System.out.println("optimal tts, dummy, runtime(second), search nodes, dummy");
         System.out.println(best_tts_ + ", " + time_for_DCM_ * 10000 / 1000000000L / 10000.0 + ", " + time_for_total_ * 10000 / 1000000000L / 10000.0 + ", " +
                 nodeCounter_.tally() + ", " + cliqueCounter_.tally());
     }

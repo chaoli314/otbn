@@ -10,29 +10,15 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Main starts.");
-        String filename = "bnr/softbank/hc.net";
+        String filename = "bnr/bnlearn/mildew.net";
         BayesianNetwork bn = HuginNetFormat.read(filename);
         Graph g = bn.getMoralGraph();
         int[] weights = bn.getWeights();
         //System.out.print(g);
-        //Graph h = new triangulation.GreedyFillin().run(g, weights);
-        //System.out.print(h);
+        Graph h1 = new triangulation.TriangulationByDFS_DCM_OandV().run(g, weights);
+        //System.out.print(h1);
+        Graph h2 = new triangulation.TriangulationByDFS_DCM_AMBN2015_PIVOTCLIQUE().run(g, weights);
+        //System.out.print(h2);
 
-
-
-
-   /*
-        String filename = args[0];
-
-        BayesianNetwork bn = HuginNetFormat.read(filename);
-
-        Graph g = bn.getMoralGraph();
-        int[] weights = bn.getWeights();
-
-        Graph GreedyFillin = new GreedyFillin().run(g, weights);
-        System.out.println(g.V()+", "+ g.E()+", "+ g.density());
-
-        System.out.println("Main ends.");
-*/
     }
 }

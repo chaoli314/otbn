@@ -297,11 +297,7 @@ public class Factor {
     }
 
 
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
-    ////////////// under review////////////// under review////////////// under review
+    //TODO review following code.
 
     // + - * / ##########################################
 
